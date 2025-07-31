@@ -23,15 +23,16 @@ from tasks.Tavern import Tavern
 from tasks.Training import Training
 from tasks.MysteryMerchant import MysteryMerchant
 from tasks.constants import TaskName
-from utils import stop_thread
+from utils import stop_thread, set_gui_log_handler, gui_log, check_bot_health, safe_operation
 import random
+import time
 
 DEFAULT_RESOLUTION = {'height': 720, 'width': 1280}
 
 
 class Bot():
 
-    def __init__(self, device, config={}):
+    def __init__(self, device, config={}, gui_handler=None):
         self.daemon_thread = None
         self.curr_thread = None
         self.device = device
@@ -44,6 +45,11 @@ class Bot():
 
         self.building_pos_update_event = lambda **kw: kw
         self.config_update_event = lambda **kw: kw
+        
+        # Connect to GUI logging if handler provided
+        if gui_handler is not None:
+            set_gui_log_handler(gui_handler)
+            gui_log("Bot inicializado", "INFO")
 
         # get screen resolution
         str = device.shell('wm size').replace('\n', '')
@@ -82,29 +88,42 @@ class Bot():
         self.round_count = 0
 
     def start(self, fn):
+        gui_log("Iniciando bot...", "INFO")
+        
         if self.daemon_thread is not None and self.daemon_thread.is_alive():
+            gui_log("Deteniendo thread daemon anterior", "WARNING")
             stop_thread(self.daemon_thread)
             print('daemon_thread: {}', self.daemon_thread.is_alive())
 
         if self.curr_thread is not None and self.curr_thread.is_alive():
+            gui_log("Deteniendo thread principal anterior", "WARNING")
             stop_thread(self.curr_thread)
             print('curr_thread: {}', self.curr_thread.is_alive())
+        
+        gui_log("Bot iniciado correctamente", "SUCCESS")
         self.daemon(fn)
 
     def stop(self):
+        gui_log("Deteniendo bot...", "INFO")
+        
         if self.daemon_thread is not None and self.daemon_thread.is_alive():
+            gui_log("Deteniendo thread daemon", "WARNING")
             stop_thread(self.daemon_thread)
             print('daemon_thread: {}', self.daemon_thread.is_alive())
 
         if self.curr_thread is not None and self.curr_thread.is_alive():
+            gui_log("Deteniendo thread principal", "WARNING")
             stop_thread(self.curr_thread)
             print('curr_thread: {}', self.curr_thread.is_alive())
+        
+        gui_log("Bot detenido", "INFO")
 
 
     def get_city_image(self):
         return self.screen_shot_task.do_city_screen()
 
     def do_task(self, curr_task=TaskName.COLLECTING):
+        gui_log(f"Iniciando ciclo de tareas - Tarea actual: {curr_task}", "INFO")
 
         tasks = [
             [self.mystery_merchant_task, 'enableMysteryMerchant'],
@@ -142,11 +161,14 @@ class Bot():
                 curr_task = self.break_task.do_no_wait(TaskName.KILL_GAME)
 
             for task in tasks:
+                task_name = task[0].__class__.__name__
                 if len(task) == 2:
                     if getattr(self.config, task[1]):
+                        gui_log(f"Ejecutando tarea: {task_name}", "INFO")
                         curr_task = task[0].do()
                 else:
                     if getattr(self.config, task[1]) and self.round_count % getattr(self.config, task[2]) == 0:
+                        gui_log(f"Ejecutando tarea: {task_name}", "INFO")
                         curr_task = task[0].do()
 
             if self.config.enableStop:
@@ -155,27 +177,55 @@ class Bot():
                 curr_task = TaskName.BREAK
 
             self.round_count = self.round_count + 1
+            gui_log(f"Ciclo completado - Ronda #{self.round_count}", "INFO")
+            
+            # Check bot health every 5 rounds
+            if self.round_count % 5 == 0:
+                check_bot_health()
+                
+            # Small delay to prevent excessive CPU usage
+            time.sleep(0.1)
         return
 
     def daemon(self, fn):
         def run():
+            gui_log("Iniciando thread daemon", "INFO")
             main_thread = threading.Thread(target=fn)
             self.curr_thread = main_thread
             main_thread.start()
 
             while True:
                 if self.daemon_thread is None or not main_thread.is_alive():
+                    gui_log("Thread daemon terminando", "INFO")
                     break
-                time.sleep(60)
-                found, _, pos = self.gui.   check_any(ImagePathAndProps.VERIFICATION_VERIFY_TITLE_IMAGE_PATH.value)
-                if found:
-                    found, _, pos = self.gui.check_any(ImagePathAndProps.VERIFICATION_CLOSE_REFRESH_OK_BUTTON_IMAGE_PATH.value)
-                    if not found:
-                        stop_thread(main_thread)
-                        time.sleep(1)
-                        main_thread = threading.Thread(target=fn)
-                        self.curr_thread = main_thread
-                        main_thread.start()
+                
+                # Check every 30 seconds instead of 60 for faster response
+                time.sleep(30)
+                
+                # Check if main thread is stuck
+                if main_thread.is_alive():
+                    gui_log("Verificando estado del thread principal", "INFO")
+                    
+                    # Check for verification dialogs
+                    try:
+                        found, _, pos = self.gui.check_any(ImagePathAndProps.VERIFICATION_VERIFY_TITLE_IMAGE_PATH.value)
+                        if found:
+                            gui_log("Dialogo de verificación detectado", "WARNING")
+                            found, _, pos = self.gui.check_any(ImagePathAndProps.VERIFICATION_CLOSE_REFRESH_OK_BUTTON_IMAGE_PATH.value)
+                            if not found:
+                                gui_log("Cerrando dialogo de verificación", "INFO")
+                                stop_thread(main_thread)
+                                time.sleep(1)
+                                main_thread = threading.Thread(target=fn)
+                                self.curr_thread = main_thread
+                                main_thread.start()
+                    except Exception as e:
+                        gui_log(f"Error verificando dialogo: {e}", "ERROR")
+                else:
+                    gui_log("Thread principal terminado, reiniciando", "WARNING")
+                    main_thread = threading.Thread(target=fn)
+                    self.curr_thread = main_thread
+                    main_thread.start()
 
         daemon_thread = threading.Thread(target=run)
         daemon_thread.start()

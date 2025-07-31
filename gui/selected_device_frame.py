@@ -20,7 +20,7 @@ class SelectedDeviceFrame(Frame):
 
         self.building_pos_window = None
 
-        self.bot = Bot(device)
+        self.bot = Bot(device, gui_handler=self)
         self.device = device
         self.bot_config = load_bot_config(device.serial.replace(':', "_"))
         self.bot_building_pos = load_building_pos(device.serial.replace(':', "_"))
@@ -48,18 +48,36 @@ class SelectedDeviceFrame(Frame):
         frame = Frame(self, width=width, height=height)
         frame.grid_propagate(False)
         frame.columnconfigure(0, weight=width)
-        frame.rowconfigure(0, weight=5)
-        frame.rowconfigure(1, weight=5)
-        frame.rowconfigure(2, weight=height - 10)
+        frame.rowconfigure(0, weight=3)  # Device label
+        frame.rowconfigure(1, weight=3)  # Task title
+        frame.rowconfigure(2, weight=8)  # Task text
+        frame.rowconfigure(3, weight=8)  # Logs area
 
-        dl = Label(frame, text=self.device.serial, width=width, height=5, bg='white')
-        title = Label(frame, text="Task: None", width=width, height=5)
-        text = Text(frame, width=width, height=height - 30)
+        dl = Label(frame, text=self.device.serial, width=width, height=3, bg='white')
+        title = Label(frame, text="Task: None", width=width, height=3)
+        text = Text(frame, width=width, height=8)
         title.config(bg='white', anchor=W, justify=LEFT)
 
+        # Add real-time logs area
+        logs_label = Label(frame, text="Logs en tiempo real:", width=width, height=2, bg='lightgray')
+        logs_label.config(anchor=W, justify=LEFT)
+        
+        # Create logs text widget with scrollbar
+        logs_frame = Frame(frame)
+        self.logs_text = Text(logs_frame, width=width, height=8, bg='black', fg='white')
+        logs_scrollbar = Scrollbar(logs_frame, orient="vertical", command=self.logs_text.yview)
+        self.logs_text.configure(yscrollcommand=logs_scrollbar.set)
+        
+        self.logs_text.grid(row=0, column=0, sticky=NSEW)
+        logs_scrollbar.grid(row=0, column=1, sticky='ns')
+        logs_frame.grid_columnconfigure(0, weight=1)
+
         dl.grid(row=0, column=0, pady=(10, 0), sticky=N + W)
-        title.grid(row=1, column=0, pady=10, sticky=N + W)
-        text.grid(row=2, column=0, sticky=N + W)
+        title.grid(row=1, column=0, pady=5, sticky=N + W)
+        text.grid(row=2, column=0, pady=5, sticky=N + W)
+        logs_label.grid(row=3, column=0, pady=(5, 0), sticky=N + W)
+        logs_frame.grid(row=4, column=0, pady=(0, 5), sticky=NSEW)
+        
         return frame, title, text
 
     def config_frame(self):
@@ -166,6 +184,40 @@ class SelectedDeviceFrame(Frame):
         self.task_text.delete(1.0, END)
         for t in text_list:
             self.task_text.insert(INSERT, t + '\n')
+    
+    def add_log_message(self, message, level="INFO"):
+        """Add log message to the real-time logs area"""
+        import datetime
+        
+        # Get current timestamp
+        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+        
+        # Color coding based on level
+        color_map = {
+            "INFO": "white",
+            "WARNING": "yellow", 
+            "ERROR": "red",
+            "SUCCESS": "green"
+        }
+        color = color_map.get(level, "white")
+        
+        # Format message
+        formatted_msg = f"[{level}] {timestamp} - {message}\n"
+        
+        # Add to logs text widget
+        self.logs_text.insert(END, formatted_msg)
+        
+        # Auto-scroll to bottom
+        self.logs_text.see(END)
+        
+        # Limit log entries to prevent memory issues (keep last 1000 lines)
+        lines = self.logs_text.get(1.0, END).split('\n')
+        if len(lines) > 1000:
+            # Remove oldest lines
+            self.logs_text.delete(1.0, f"{len(lines)-1000}.0")
+        
+        # Force GUI update
+        self.logs_text.update()
 
 
 def section_frame(app, parent, title_component_fn, sub_component_fns=[], start_row=0, start_column=0):

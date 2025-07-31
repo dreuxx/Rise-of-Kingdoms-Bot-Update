@@ -1,5 +1,8 @@
 # Core dependencies for Rise of Kingdoms Bot
 # Install with: pip install -r requirements.txt
+# 
+# Note: Some packages may need to be installed via system package manager:
+# sudo apt install python3-tk python3-psutil
 
 # Computer Vision and Image Processing
 opencv-python>=4.5.0
@@ -17,9 +20,25 @@ requests-toolbelt>=0.9.1
 # Security and Encryption
 cryptography>=3.4.0
 
-# GUI Framework
-# Note: tkinter is included with Python standard library
+# System Monitoring and Health Checks
+psutil>=5.8.0
 
-# Optional: For better logging and monitoring
-# psutil>=5.8.0  # System monitoring
+# GUI Framework (usually included with Python)
+# tkinter - Included with Python standard library
+# python3-tk - May need to be installed via: sudo apt install python3-tk
+
+# Optional: For advanced monitoring and development
 # watchdog>=2.1.0  # File system monitoring
+# pytest>=6.0.0   # For testing
+# black>=21.0.0    # Code formatting
+# flake8>=3.8.0    # Code linting
+
+# Installation Instructions:
+# 1. Install system dependencies:
+#    sudo apt install python3-tk python3-psutil
+#
+# 2. Install Python packages:
+#    pip install -r requirements.txt
+#
+# 3. For development (optional):
+#    pip install watchdog pytest black flake8

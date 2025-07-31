@@ -1,45 +1,222 @@
-######### Back End #########
+# Rise of Kingdoms Bot - Git Ignore File
+# Archivos y directorios que NO deben estar en el repositorio
 
-HELP.md
+######### Python #########
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
 target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Jupyter Notebook
+.ipynb_checkpoints
 
-### IntelliJ IDEA ###
-.idea
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+######### IDE Files #########
+# VS Code
+.vscode/
+
+# IntelliJ IDEA
+.idea/
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# PyCharm
+.idea/
 
-### VS Code ###
-.vscode/
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
 
-adb
-tesseract
-venv
-_pycache_
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+######### Project Specific #########
+# External tools and dependencies
+adb/
+tesseract/
+
+# Configuration files (may contain sensitive data)
 config.json
+config.json.backup
+config_corrupted_*.json
 devices_config.json
-save
-test_code
-test_screen_caps
+devices_config.json.backup
+
+# Security files
+.config_key
+*.key
+*.pem
+*.crt
+
+# Log files
+*.log
+logs/
+log/
+
+# Test files and temporary data
+test_code/
+test_screen_caps/
+save/
+temp/
+tmp/
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+######### Development #########
+# Test files
+test_*.py
+*_test.py
+test_gui_logs.py
+test_anti_freeze.py
+
+# Documentation drafts
+docs/drafts/
+*.md.bak
+
+# Local development files
+local_config.py
+debug_config.py

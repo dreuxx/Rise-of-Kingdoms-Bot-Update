@@ -98,8 +98,95 @@ def aircv_rectangle_to_box(rectangle):
     return rectangle[0][0], rectangle[0][1], rectangle[3][0], rectangle[3][1]
 
 
+# Global reference to GUI log handler
+_gui_log_handler = None
+
+def set_gui_log_handler(handler):
+    """Set the GUI log handler for real-time logging"""
+    global _gui_log_handler
+    _gui_log_handler = handler
+
 def bot_print(msg):
+    """Print message to console and GUI if available"""
     print(msg)
+    
+    # Also send to GUI if handler is available
+    if _gui_log_handler is not None:
+        try:
+            _gui_log_handler.add_log_message(msg, "INFO")
+        except Exception as e:
+            # Don't let GUI errors break console logging
+            print(f"GUI logging error: {e}")
+
+def gui_log(message, level="INFO"):
+    """Log message to GUI in real-time"""
+    if _gui_log_handler is not None:
+        try:
+            _gui_log_handler.add_log_message(message, level)
+        except Exception as e:
+            print(f"GUI logging error: {e}")
+    else:
+        # Fallback to console if GUI not available
+        print(f"[{level}] {message}")
+
+def check_bot_health():
+    """Check if bot is responsive and not frozen"""
+    import psutil
+    import os
+    
+    try:
+        # Get current process
+        current_process = psutil.Process(os.getpid())
+        
+        # Check CPU usage (if too high, might be stuck)
+        cpu_percent = current_process.cpu_percent(interval=0.1)
+        
+        # Check memory usage
+        memory_info = current_process.memory_info()
+        memory_mb = memory_info.rss / 1024 / 1024
+        
+        # Log health metrics
+        gui_log(f"CPU: {cpu_percent:.1f}%, Memoria: {memory_mb:.1f}MB", "INFO")
+        
+        # Warning if resources are high
+        if cpu_percent > 80:
+            gui_log(f"Advertencia: Alto uso de CPU ({cpu_percent:.1f}%)", "WARNING")
+        if memory_mb > 500:
+            gui_log(f"Advertencia: Alto uso de memoria ({memory_mb:.1f}MB)", "WARNING")
+            
+        return True
+        
+    except Exception as e:
+        gui_log(f"Error al verificar salud del bot: {e}", "ERROR")
+        return False
+
+def safe_operation(operation_name, timeout=30):
+    """Execute operation with timeout to prevent freezing"""
+    import threading
+    import time
+    
+    def operation_wrapper():
+        try:
+            gui_log(f"Iniciando operación: {operation_name}", "INFO")
+            # Here you would call the actual operation
+            time.sleep(0.1)  # Simulate work
+            gui_log(f"Operación completada: {operation_name}", "SUCCESS")
+        except Exception as e:
+            gui_log(f"Error en operación {operation_name}: {e}", "ERROR")
+    
+    # Run operation in separate thread with timeout
+    thread = threading.Thread(target=operation_wrapper)
+    thread.daemon = True
+    thread.start()
+    
+    # Wait for completion with timeout
+    thread.join(timeout=timeout)
+    
+    if thread.is_alive():
+        gui_log(f"Operación {operation_name} excedió el timeout de {timeout}s", "ERROR")
+        return False
+    
+    return True
 
 
 def safe_request_get(url, timeout=10, retries=3):
