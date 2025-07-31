@@ -1,0 +1,25 @@
+# Core dependencies for Rise of Kingdoms Bot
+# Install with: pip install -r requirements.txt
+
+# Computer Vision and Image Processing
+opencv-python>=4.5.0
+pytesseract>=0.3.8
+numpy>=1.20.0
+pillow>=8.0.0
+
+# Android Debug Bridge Interface
+pure-python-adb>=0.3.0
+
+# HTTP Requests and Web APIs
+requests>=2.25.0
+requests-toolbelt>=0.9.1
+
+# Security and Encryption
+cryptography>=3.4.0
+
+# GUI Framework
+# Note: tkinter is included with Python standard library
+
+# Optional: For better logging and monitoring
+# psutil>=5.8.0  # System monitoring
+# watchdog>=2.1.0  # File system monitoring
