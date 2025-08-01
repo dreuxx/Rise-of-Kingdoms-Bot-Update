@@ -22,6 +22,7 @@ from tasks.ScreenShot import ScreenShot
 from tasks.Tavern import Tavern
 from tasks.Training import Training
 from tasks.MysteryMerchant import MysteryMerchant
+from tasks.GatherGem import GatherGem
 from tasks.constants import TaskName
 from utils import stop_thread, set_gui_log_handler, gui_log, check_bot_health, safe_operation
 import random
@@ -76,6 +77,7 @@ class Bot():
         self.claim_vip_task = ClaimVip(self)
         self.collecting_task = Collecting(self)
         self.gather_resource_task = GatherResource(self)
+        self.gather_gem_task = GatherGem(self)
         self.locate_building_task = LocateBuilding(self)
         self.materials_task = Materials(self)
         self.scout_task = Scout(self)
@@ -133,6 +135,7 @@ class Bot():
             [self.claim_vip_task, 'enableVipClaimChest', 'vipDoRound'],
             [self.collecting_task, 'enableCollecting'],
             [self.gather_resource_task, 'gatherResource'],
+            [self.gather_gem_task, 'enableGatherGem'],
             [self.materials_task, 'enableMaterialProduce' , 'materialDoRound'],
             [self.scout_task, 'enableScout'],
             [self.tavern_task, 'enableTavern'],

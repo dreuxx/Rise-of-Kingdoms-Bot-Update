@@ -160,7 +160,39 @@ class ImagePathAndProps(Enum):
     MERCHANT_BUY_WITH_FOOD_IMAGE_PATH = ['resource\\merchant_buy_with_food.png',
                                     (1280, 720), (0, 0, 0, 0), 0.80, 25, MERCHANT_BUY_WITH_FOOD]
     HAS_MATCH_QUERY_IMAGE_PATH = ['resource\\has_match_query.png',
-                                    (1280, 720), (0, 0, 0, 0), 0.80, 25, HAS_MATCH_QUERY]
+                                   (1280, 720), (0, 0, 0, 0), 0.80, 25, HAS_MATCH_QUERY]
+    GEM_IMG_PATH = ['resource\\GemDeposit.png',
+                     (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE]
+    GEM_IMG_PATH_1 = ['resource\\GemDeposit1.png',
+                       (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_1]
+    GEM_IMG_PATH_2 = ['resource\\GemDeposit2.png',
+                       (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_2]
+    GEM_IMG_PATH_3 = ['resource\\GemDeposit3.png',
+                       (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_3]
+    GEM_IMG_PATH_4 = ['resource\\GemDeposit4.png',
+                       (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_4]
+    GEM_IMG_PATH_5 = ['resource\\GemDeposit5.png',
+                       (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_5]
+    GEM_IMG_PATH_6 = ['resource\\GemDeposit6.png',
+                       (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_6]
+    GEM_IMG_PATH_7 = ['resource\\GemDeposit7.png',
+                       (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_7]
+    GEM_IMG_PATH_8 = ['resource\\GemDeposit8.png',
+                       (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_8]
+    GEM_IMG_PATH_9 = ['resource\\GemDeposit9.png',
+                       (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_9]
+    GEM_IMG_PATH_10 = ['resource\\GemDeposit10.png',
+                        (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_10]
+    GEM_IMG_PATH_11 = ['resource\\GemDeposit11.png',
+                        (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_11]
+    GEM_IMG_PATH_12 = ['resource\\GemDeposit20.png',
+                        (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_12]
+    GEM_IMG_PATH_13 = ['resource\\GemDeposit21.png',
+                        (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_13]
+    GEM_IMG_PATH_14 = ['resource\\GemDeposit22.png',
+                        (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_14]
+    GEM_IMG_PATH_15 = ['resource\\GemDepositZ1.png',
+                        (1280, 720), (0, 0, 0, 0), 0.80, 25, GEM_MINE_15]
     VERIFICATION_VERIFY_TITLE_IMAGE_PATH = ['resource\\verification_verify_title.png',
                                              (1280, 720), (0, 0, 0, 0), 0.90, 25, VERIFICATION_VERIFY_TITLE]
 

@@ -96,6 +96,13 @@ class BotConfig:
         self.gatherResourceRatioGold = config.get('gatherResourceRatioGold', 1)
         self.holdOneQuerySpace = config.get('holdOneQuerySpace', False)
 
+        # Gather gem
+        self.enableGatherGem = config.get('enableGatherGem', False)
+        self.gatherGemDistance = config.get('gatherGemDistance', 50)
+        self.gatherGemNoSecondaryCommander = config.get('gatherGemNoSecondaryCommander', True)
+        self.gatherGemUseMultipleImages = config.get('gatherGemUseMultipleImages', True)
+        self.gatherGemMinImagesFound = config.get('gatherGemMinImagesFound', 3)
+
         # Scout
         self.enableScout = config.get('enableScout', False)
         self.enableInvestigation = config.get('enableInvestigation', True)
