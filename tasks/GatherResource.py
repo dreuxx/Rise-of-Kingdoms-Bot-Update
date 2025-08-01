@@ -60,7 +60,25 @@ class GatherResource(Task):
                 chose_icon_pos = resource_icon_pos[3]
                 self.set_text(insert="Search gold")
 
-            if self.bot.config.holdOneQuerySpace:
+            # Check march availability with new system
+            if self.bot.config.useAllMarches:
+                if not self.bot.march_manager.can_start_march():
+                    if self.bot.config.waitForMarches:
+                        self.set_text(insert="Esperando espacio de marcha...")
+                        if not self.bot.march_manager.wait_for_march_space(
+                            timeout=self.bot.config.maxWaitTime, 
+                            task_name="Gather Resource"
+                        ):
+                            self.set_text(insert="Timeout esperando marcha, cambiando tarea")
+                            if self.bot.config.autoSwitchTasks:
+                                next_task = self.bot.march_manager.switch_to_available_task() or next_task
+                            return next_task
+                    else:
+                        self.set_text(insert="No hay espacio de marcha, cambiando tarea")
+                        if self.bot.config.autoSwitchTasks:
+                            next_task = self.bot.march_manager.switch_to_available_task() or next_task
+                        return next_task
+            elif self.bot.config.holdOneQuerySpace:
                 space = self.check_query_space()
                 if space <= 1:
                     self.set_text(insert="Match query space less or equal to 1, stop!")
@@ -82,7 +100,25 @@ class GatherResource(Task):
                 if len(last_resource_pos) > 0:
                     self.back_to_map_gui()
 
-                    if self.bot.config.holdOneQuerySpace:
+                    # Check march availability with new system
+                    if self.bot.config.useAllMarches:
+                        if not self.bot.march_manager.can_start_march():
+                            if self.bot.config.waitForMarches:
+                                self.set_text(insert="Esperando espacio de marcha...")
+                                if not self.bot.march_manager.wait_for_march_space(
+                                    timeout=self.bot.config.maxWaitTime, 
+                                    task_name="Gather Resource"
+                                ):
+                                    self.set_text(insert="Timeout esperando marcha, cambiando tarea")
+                                    if self.bot.config.autoSwitchTasks:
+                                        next_task = self.bot.march_manager.switch_to_available_task() or next_task
+                                    return next_task
+                            else:
+                                self.set_text(insert="No hay espacio de marcha, cambiando tarea")
+                                if self.bot.config.autoSwitchTasks:
+                                    next_task = self.bot.march_manager.switch_to_available_task() or next_task
+                                return next_task
+                    elif self.bot.config.holdOneQuerySpace:
                         space = self.check_query_space()
                         if space <= 1:
                             self.set_text(insert="Match query space less or equal to 1, stop!")

@@ -79,7 +79,24 @@ class Barbarians(Task):
                         ImagePathAndProps.NEW_TROOPS_BUTTON_IMAGE_PATH.value)
                     if not has_new_troops_btn:
                         super().set_text(insert="Not more space for march")
-                        return next_task
+                        if self.bot.config.useAllMarches and self.bot.config.waitForMarches:
+                            super().set_text(insert="Esperando espacio de marcha para bárbaros...")
+                            if not self.bot.march_manager.wait_for_march_space(
+                                timeout=self.bot.config.maxWaitTime, 
+                                task_name="Attack Barbarians"
+                            ):
+                                super().set_text(insert="Timeout esperando marcha para bárbaros")
+                                if self.bot.config.autoSwitchTasks:
+                                    next_task = self.bot.march_manager.switch_to_available_task() or next_task
+                                return next_task
+                            # Try again after waiting
+                            has_new_troops_btn, _, new_troop_btn_pos = self.gui.check_any(
+                                ImagePathAndProps.NEW_TROOPS_BUTTON_IMAGE_PATH.value)
+                            if not has_new_troops_btn:
+                                super().set_text(insert="Aún no hay espacio de marcha para bárbaros")
+                                return next_task
+                        else:
+                            return next_task
                     x, y = new_troop_btn_pos
                     super().tap(x, y, 2)
 

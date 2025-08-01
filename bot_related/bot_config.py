@@ -86,6 +86,13 @@ class BotConfig:
         self.useNormalAPRecovery = config.get('useNormalAPRecovery', False)
         self.timeout = config.get('timeout', 300)
 
+        # March Management System
+        self.useAllMarches = config.get('useAllMarches', True)
+        self.waitForMarches = config.get('waitForMarches', True)
+        self.maxWaitTime = config.get('maxWaitTime', 300)
+        self.autoSwitchTasks = config.get('autoSwitchTasks', True)
+        self.marchPriority = config.get('marchPriority', 'RESOURCE')  # RESOURCE, BARBARIANS, GEMS
+
         # Gather resource
         self.useGatheringBoosts = config.get('useGatheringBoosts', False)
         self.gatherResource = config.get('gatherResource', True)

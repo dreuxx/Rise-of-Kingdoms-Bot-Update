@@ -234,3 +234,136 @@ def get_last_info():
         logger.error(f"Unexpected error getting version info: {e}")
         return {}
 
+
+class MarchManager:
+    """Sistema inteligente para gestionar las marchas del bot"""
+    
+    def __init__(self, bot):
+        self.bot = bot
+        self.max_marches = 5
+        self.current_marches = 0
+        self.waiting_tasks = []
+        self.last_check_time = 0
+        self.check_interval = 5  # segundos entre verificaciones
+        
+    def get_available_marches(self):
+        """Obtener número de marchas disponibles"""
+        try:
+            curr_q, max_q = self.bot.gui.match_query_to_string()
+            if curr_q is None or max_q is None:
+                logger.warning("No se pudo leer el estado de marchas, usando valor por defecto")
+                return self.max_marches
+            available = max_q - curr_q
+            self.current_marches = curr_q
+            logger.info(f"Marchas disponibles: {available}/{max_q}")
+            return available
+        except Exception as e:
+            logger.error(f"Error al obtener marchas disponibles: {e}")
+            return 0
+    
+    def can_start_march(self):
+        """Verificar si se puede iniciar una nueva marcha"""
+        available = self.get_available_marches()
+        can_start = available > 0
+        
+        if can_start:
+            logger.info(f"✅ Se puede iniciar marcha. Espacios disponibles: {available}")
+        else:
+            logger.warning(f"❌ No hay espacios de marcha disponibles")
+            
+        return can_start
+    
+    def wait_for_march_space(self, timeout=300, task_name="Tarea"):
+        """Esperar hasta que haya espacio de marcha disponible"""
+        start_time = time.time()
+        logger.info(f"⏳ {task_name}: Esperando espacio de marcha (timeout: {timeout}s)")
+        
+        while time.time() - start_time < timeout:
+            if self.can_start_march():
+                logger.info(f"✅ {task_name}: Espacio de marcha disponible")
+                return True
+                
+            elapsed = int(time.time() - start_time)
+            remaining = timeout - elapsed
+            logger.info(f"⏳ {task_name}: Esperando... ({elapsed}/{timeout}s restantes: {remaining}s)")
+            
+            time.sleep(self.check_interval)
+        
+        logger.error(f"⏰ {task_name}: Timeout esperando espacio de marcha")
+        return False
+    
+    def optimize_march_usage(self):
+        """Optimizar el uso de marchas basado en prioridades"""
+        available = self.get_available_marches()
+        
+        if available == 0:
+            logger.warning("No hay marchas disponibles para optimizar")
+            return False
+            
+        # Prioridades: Bárbaros > Gemas > Recursos
+        priorities = {
+            'barbarians': 3,  # Alta prioridad
+            'gems': 2,        # Media prioridad  
+            'resources': 1     # Baja prioridad
+        }
+        
+        logger.info(f"🔧 Optimizando uso de {available} marchas disponibles")
+        return True
+    
+    def switch_to_available_task(self):
+        """Cambiar a una tarea que no use marchas cuando no hay espacio"""
+        logger.info("🔄 Cambiando a tarea sin marchas")
+        
+        # Tareas que no usan marchas
+        available_tasks = [
+            'training',      # Entrenamiento
+            'tavern',        # Taberna
+            'materials',     # Materiales
+            'collecting',    # Recolección de recompensas
+            'quests',        # Misiones
+            'alliance'       # Alianza
+        ]
+        
+        for task in available_tasks:
+            if self.bot.config.__dict__.get(f'enable{task.capitalize()}', False):
+                logger.info(f"✅ Cambiando a tarea: {task}")
+                return task
+                
+        logger.warning("❌ No hay tareas disponibles sin marchas")
+        return None
+    
+    def log_march_status(self):
+        """Registrar el estado actual de las marchas"""
+        try:
+            curr_q, max_q = self.bot.gui.match_query_to_string()
+            if curr_q is not None and max_q is not None:
+                available = max_q - curr_q
+                status_emoji = "🟢" if available > 0 else "🔴"
+                logger.info(f"{status_emoji} Estado de marchas: {curr_q}/{max_q} (Disponibles: {available})")
+                
+                # Log detailed status
+                if available == 0:
+                    logger.warning("⚠️ Todas las marchas están ocupadas")
+                elif available <= 2:
+                    logger.warning(f"⚠️ Solo quedan {available} espacios de marcha")
+                else:
+                    logger.info(f"✅ {available} espacios de marcha disponibles")
+                    
+            else:
+                logger.warning("❓ No se pudo leer el estado de marchas")
+        except Exception as e:
+            logger.error(f"Error al registrar estado de marchas: {e}")
+    
+    def get_march_efficiency(self):
+        """Calcular la eficiencia de uso de marchas"""
+        try:
+            curr_q, max_q = self.bot.gui.match_query_to_string()
+            if curr_q is not None and max_q is not None:
+                efficiency = (curr_q / max_q) * 100
+                logger.info(f"📈 Eficiencia de marchas: {efficiency:.1f}% ({curr_q}/{max_q})")
+                return efficiency
+            return 0
+        except Exception as e:
+            logger.error(f"Error al calcular eficiencia de marchas: {e}")
+            return 0
+

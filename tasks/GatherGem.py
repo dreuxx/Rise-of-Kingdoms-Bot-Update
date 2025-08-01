@@ -184,7 +184,25 @@ class GatherGem(Task):
 
                         if pos is None:
                             self.set_text(insert="No more space for march")
-                            return next_task
+                            if self.bot.config.useAllMarches and self.bot.config.waitForMarches:
+                                self.set_text(insert="Esperando espacio de marcha para gemas...")
+                                if not self.bot.march_manager.wait_for_march_space(
+                                    timeout=self.bot.config.maxWaitTime, 
+                                    task_name="Gather Gem"
+                                ):
+                                    self.set_text(insert="Timeout esperando marcha para gemas")
+                                    if self.bot.config.autoSwitchTasks:
+                                        next_task = self.bot.march_manager.switch_to_available_task() or next_task
+                                    return next_task
+                                # Try again after waiting
+                                pos = self.gui.check_any(
+                                    ImagePathAndProps.NEW_TROOPS_BUTTON_IMAGE_PATH.value
+                                )[2]
+                                if pos is None:
+                                    self.set_text(insert="Aún no hay espacio de marcha")
+                                    return next_task
+                            else:
+                                return next_task
                         new_troops_button_pos = pos
                         self.tap(
                             new_troops_button_pos[0],

@@ -24,7 +24,7 @@ from tasks.Training import Training
 from tasks.MysteryMerchant import MysteryMerchant
 from tasks.GatherGem import GatherGem
 from tasks.constants import TaskName
-from utils import stop_thread, set_gui_log_handler, gui_log, check_bot_health, safe_operation
+from utils import stop_thread, set_gui_log_handler, gui_log, check_bot_health, safe_operation, MarchManager
 import random
 import time
 
@@ -66,6 +66,9 @@ class Bot():
         self.curr_task = TaskName.BREAK
 
         self.task = Task(self)
+        
+        # Initialize March Manager
+        self.march_manager = MarchManager(self)
 
         # tasks
         self.restart_task = Restart(self)
@@ -182,9 +185,11 @@ class Bot():
             self.round_count = self.round_count + 1
             gui_log(f"Ciclo completado - Ronda #{self.round_count}", "INFO")
             
-            # Check bot health every 5 rounds
-            if self.round_count % 5 == 0:
-                check_bot_health()
+                    # Check bot health every 5 rounds
+        if self.round_count % 5 == 0:
+            check_bot_health()
+            # Log march status
+            self.march_manager.log_march_status()
                 
             # Small delay to prevent excessive CPU usage
             time.sleep(0.1)
