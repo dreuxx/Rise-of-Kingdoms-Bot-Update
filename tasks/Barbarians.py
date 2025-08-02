@@ -33,7 +33,7 @@ class Barbarians(Task):
                 if min_lv < base_lv:
                     min_lv = base_lv
 
-                if min_lv > max_lv | max_lv < base_lv:
+                if min_lv > max_lv or max_lv < base_lv:
                     return next_task
 
                 super().set_text(insert="Attack Round [{}]".format(r + 1))
