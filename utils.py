@@ -1,7 +1,15 @@
 from filepath.file_relative_paths import FilePaths
 
-import cv2
-import pytesseract as tess
+try:
+    import cv2
+except Exception:
+    cv2 = None
+
+try:
+    import pytesseract as tess
+except Exception:
+    tess = None
+
 import sys
 import os
 
@@ -14,6 +22,7 @@ import traceback
 
 import threading
 import logging
+import time
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

@@ -1,4 +1,8 @@
-from ppadb.client import Client as PPADBClient
+try:
+    from ppadb.client import Client as PPADBClient
+except Exception:
+    PPADBClient = None
+
 from utils import resource_path
 from utils import build_command
 from filepath.file_relative_paths import FilePaths
@@ -6,6 +10,8 @@ import subprocess
 import traceback
 import logging
 import time
+import shutil
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -20,6 +26,8 @@ class Adb:
     def __init__(self, host='127.0.0.1', port=5037):
         """Initialize ADB client with validation"""
         try:
+            if PPADBClient is None:
+                raise RuntimeError('ppadb (pure-python-adb) is not installed. Please install with: pip install pure-python-adb')
             # Validate host and port
             if not self._validate_host(host):
                 raise ValueError(f"Invalid host address: {host}")
@@ -63,18 +71,23 @@ class Adb:
             raise ValueError(f"Invalid connection parameters: {host}:{port}")
             
         adb_path = resource_path(FilePaths.ADB_EXE_PATH.value)
+        # Prefer system adb if available and executable
+        system_adb = shutil.which('adb')
+        if system_adb:
+            adb_path = system_adb
+
         target = f"{host}:{port}"
-        cmd = build_command(adb_path, 'connect', target)
+        cmd = [adb_path, 'connect', target]
         
         for attempt in range(retries):
             try:
                 logger.info(f"Attempting to connect to {target} (attempt {attempt + 1}/{retries})")
                 
                 ret = subprocess.check_output(
-                    cmd, 
-                    shell=True, 
-                    stderr=subprocess.PIPE, 
-                    encoding="utf-8", 
+                    cmd,
+                    shell=False,
+                    stderr=subprocess.PIPE,
+                    encoding="utf-8",
                     timeout=10  # Increased timeout
                 )
                 
@@ -170,16 +183,23 @@ def enable_adb(host='127.0.0.1', port=5037, required_version=41):
     # Restart ADB server
     try:
         adb_path = resource_path(FilePaths.ADB_EXE_PATH.value)
+        # Prefer system adb if available and executable
+        system_adb = shutil.which('adb')
+        if system_adb:
+            adb_path = system_adb
+
+        # Normalize path for Windows-style paths in repo on Linux
+        adb_path = os.path.normpath(adb_path)
         logger.info(f"Using ADB executable: {adb_path}")
         
         # Kill existing server
         logger.info("Stopping existing ADB server")
-        kill_cmd = build_command(adb_path, '-P', str(port), 'kill-server')
+        kill_cmd = [adb_path, '-P', str(port), 'kill-server']
         ret = subprocess.run(
-            kill_cmd, 
-            shell=True,
-            stdout=subprocess.PIPE, 
-            stderr=subprocess.PIPE, 
+            kill_cmd,
+            shell=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             encoding="utf-8",
             timeout=10
         )
@@ -194,12 +214,12 @@ def enable_adb(host='127.0.0.1', port=5037, required_version=41):
         
         # Start new server
         logger.info("Starting new ADB server")
-        start_cmd = build_command(adb_path, '-P', str(port), 'start-server')
+        start_cmd = [adb_path, '-P', str(port), 'start-server']
         ret = subprocess.run(
-            start_cmd, 
-            shell=True,
-            stdout=subprocess.PIPE, 
-            stderr=subprocess.PIPE, 
+            start_cmd,
+            shell=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             encoding="utf-8",
             timeout=15
         )

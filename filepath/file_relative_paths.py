@@ -7,12 +7,14 @@ class StrImagePosition(Enum):
 
 
 class FilePaths(Enum):
-    TEST_SRC_FOLDER_PATH = 'test_screen_caps\\'
-    TEST_CURR_SCREEN_CAP_PATH = 'test_screen_caps\\current_cap.png'
-    ADB_EXE_PATH = 'adb\\adb.exe'
-    TESSERACT_EXE_PATH = 'tesseract\\tesseract.exe'
-    TESSDATA_CHI_SIM_PATH = 'tessdata\\chi_sim.traineddata'
-    SAVE_FOLDER_PATH = 'save\\'
+    # Use platform-neutral paths; repo contains Windows binaries by default.
+    TEST_SRC_FOLDER_PATH = 'test_screen_caps'
+    TEST_CURR_SCREEN_CAP_PATH = 'test_screen_caps/current_cap.png'
+    # Primary path points to repo-provided Windows exe; code should prefer system `adb` on Linux.
+    ADB_EXE_PATH = 'adb/adb.exe'
+    TESSERACT_EXE_PATH = 'tesseract/tesseract.exe'
+    TESSDATA_CHI_SIM_PATH = 'tessdata/chi_sim.traineddata'
+    SAVE_FOLDER_PATH = 'save'
 
 
 class BuffsImageAndProps(Enum):

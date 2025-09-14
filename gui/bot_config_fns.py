@@ -1,4 +1,4 @@
-from gui.creator import checkbox_fn_creator, train_fn_creator, write_bot_config, entry_int_fn_creator
+from gui.creator import checkbox_fn_creator, train_fn_creator, write_bot_config, entry_int_fn_creator, combobox_fn_creator
 
 from tkinter import StringVar, OptionMenu, Frame, Label, Entry, N, W
 

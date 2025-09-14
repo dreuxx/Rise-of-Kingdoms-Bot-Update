@@ -139,6 +139,40 @@ def train_fn_creator(name, train_attr_name, upgrade_attr_name):
     return train
 
 
+def combobox_fn_creator(name, label_text, options):
+    """Create a combobox-like OptionMenu bound to a BotConfig attribute.
+
+    name: attribute name in BotConfig
+    label_text: displayed label
+    options: list of string options
+    """
+    def creator(app, parent):
+        frame = Frame(parent)
+        label = Label(frame, text=label_text)
+
+        variable = StringVar()
+        # use current value if available otherwise first option
+        current = getattr(app.bot_config, name, None)
+        if current in options:
+            variable.set(current)
+        else:
+            variable.set(options[0] if options else '')
+
+        def command(v):
+            try:
+                setattr(app.bot_config, name, v)
+                write_bot_config(app.bot_config, app.device.serial.replace(':', "_"))
+            except Exception:
+                traceback.print_exc()
+
+        option = OptionMenu(frame, variable, *options, command=command)
+        label.grid(row=0, column=0, sticky=N + W, padx=5)
+        option.grid(row=0, column=1, sticky=N + W, padx=5)
+        return frame, variable
+
+    return creator
+
+
 def load_bot_config(prefix):
     try:
         with open(resource_path(FilePaths.SAVE_FOLDER_PATH.value + '{}_config.json'.format(prefix))) as f:
