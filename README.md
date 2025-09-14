@@ -100,6 +100,7 @@ Note: Don't forget to move your **'save'**, **'config.json'** and **'devices_con
   pip install pure-python-adb
   pip install requests
   pip install requests-toolbelt
+  pip install cryptography
   ```
 
 - Download **ADB** version 29.0.5-5949299 (1.0.41) (require for same version or you can change version in adb.py)
