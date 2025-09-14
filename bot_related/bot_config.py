@@ -92,6 +92,8 @@ class BotConfig:
         self.maxWaitTime = config.get('maxWaitTime', 300)
         self.autoSwitchTasks = config.get('autoSwitchTasks', True)
         self.marchPriority = config.get('marchPriority', 'RESOURCE')  # RESOURCE, BARBARIANS, GEMS
+    # Maximum simultaneous marches to send for tasks like barbarians
+        self.maxSimultaneousMarches = config.get('maxSimultaneousMarches', 5)
 
         # Gather resource
         self.useGatheringBoosts = config.get('useGatheringBoosts', False)

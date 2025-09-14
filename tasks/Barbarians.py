@@ -74,50 +74,69 @@ class Barbarians(Task):
                 super().tap(x, y, 3)
 
                 if not self.bot.config.holdPosition or is_in_city:
-                    # tap on new troop
-                    has_new_troops_btn, _, new_troop_btn_pos = self.gui.check_any(
-                        ImagePathAndProps.NEW_TROOPS_BUTTON_IMAGE_PATH.value)
-                    if not has_new_troops_btn:
+                    # Determine how many marches we can send now
+                    available = self.bot.march_manager.get_available_marches()
+                    max_sim = getattr(self.bot.config, 'maxSimultaneousMarches', 1)
+                    remaining_attacks = self.bot.config.numberOfAttack - r
+                    to_send = min(available, max_sim, remaining_attacks)
+
+                    if to_send <= 0:
+                        # No space now
                         super().set_text(insert="Not more space for march")
                         if self.bot.config.useAllMarches and self.bot.config.waitForMarches:
                             super().set_text(insert="Esperando espacio de marcha para bárbaros...")
                             if not self.bot.march_manager.wait_for_march_space(
-                                timeout=self.bot.config.maxWaitTime, 
+                                timeout=self.bot.config.maxWaitTime,
                                 task_name="Attack Barbarians"
                             ):
                                 super().set_text(insert="Timeout esperando marcha para bárbaros")
                                 if self.bot.config.autoSwitchTasks:
                                     next_task = self.bot.march_manager.switch_to_available_task() or next_task
                                 return next_task
-                            # Try again after waiting
-                            has_new_troops_btn, _, new_troop_btn_pos = self.gui.check_any(
-                                ImagePathAndProps.NEW_TROOPS_BUTTON_IMAGE_PATH.value)
-                            if not has_new_troops_btn:
+                            # Recompute available after waiting
+                            available = self.bot.march_manager.get_available_marches()
+                            to_send = min(available, max_sim, remaining_attacks)
+                            if to_send <= 0:
                                 super().set_text(insert="Aún no hay espacio de marcha para bárbaros")
                                 return next_task
-                        else:
-                            return next_task
-                    x, y = new_troop_btn_pos
-                    super().tap(x, y, 2)
 
-                    # select saves
-                    self.select_save_blue_one()
+                    # Send up to `to_send` marches targeting same objective
+                    last_commander_img = None
+                    for send_idx in range(to_send):
+                        # tap on new troop
+                        has_new_troops_btn, _, new_troop_btn_pos = self.gui.check_any(
+                            ImagePathAndProps.NEW_TROOPS_BUTTON_IMAGE_PATH.value)
+                        if not has_new_troops_btn:
+                            super().set_text(insert="Not more space for march during multi-send")
+                            break
+                        x, y = new_troop_btn_pos
+                        super().tap(x, y, 2)
 
-                    # start attack
-                    _, _, match_button_pos = self.gui.check_any(
-                        ImagePathAndProps.TROOPS_MATCH_BUTTON_IMAGE_PATH.value)
-                    super().set_text(insert="March")
-                    x, y = match_button_pos
-                    super().tap(x, y, 1)
+                        # select saves (will pick next available save/commander)
+                        self.select_save_blue_one()
 
-                    if self.use_ap_recovery():
+                        # start attack
                         _, _, match_button_pos = self.gui.check_any(
                             ImagePathAndProps.TROOPS_MATCH_BUTTON_IMAGE_PATH.value)
-                        super().set_text(insert="March")
+                        super().set_text(insert=f"March {send_idx + 1}/{to_send}")
                         x, y = match_button_pos
                         super().tap(x, y, 1)
 
-                    commander_cv_img = self.gui.get_image_in_box(queue_one_pos)
+                        # handle AP recovery if needed
+                        if self.use_ap_recovery():
+                            _, _, match_button_pos = self.gui.check_any(
+                                ImagePathAndProps.TROOPS_MATCH_BUTTON_IMAGE_PATH.value)
+                            super().set_text(insert="March")
+                            x, y = match_button_pos
+                            super().tap(x, y, 1)
+
+                        # small delay between sends to allow UI to update
+                        time.sleep(0.8)
+
+                        # capture last commander in queue (approx)
+                        last_commander_img = self.gui.get_image_in_box(queue_one_pos)
+
+                    commander_cv_img = last_commander_img
                     is_in_city = False
 
                 else:
