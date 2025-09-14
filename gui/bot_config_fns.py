@@ -120,6 +120,13 @@ resource_no_secondery_commander = checkbox_fn_creator('gatherResourceNoSecondary
 use_gathering_boosts = checkbox_fn_creator('useGatheringBoosts', 'Use gathering boosts')
 hold_one_query_space_checkbox = checkbox_fn_creator('holdOneQuerySpace', 'Hold space for attack barbarians')
 
+# Gather Gem
+gather_gem_checkbox = checkbox_fn_creator('enableGatherGem', 'Enable Gather Gem')
+gather_gem_distance_entry = entry_int_fn_creator('gatherGemDistance', 'Search Distance (1-100):')
+gather_gem_no_secondary = checkbox_fn_creator('gatherGemNoSecondaryCommander', 'Not use secondary commander')
+gather_gem_use_multiple_images = checkbox_fn_creator('gatherGemUseMultipleImages', 'Use multiple images for confirm')
+gather_gem_min_images_entry = entry_int_fn_creator('gatherGemMinImagesFound', 'Min images to confirm:')
+
 # March Management System
 use_all_marches_checkbox = checkbox_fn_creator('useAllMarches', 'Use All Marches (5/5)')
 wait_for_marches_checkbox = checkbox_fn_creator('waitForMarches', 'Wait for March Space')
@@ -194,6 +201,7 @@ bot_config_title_fns = [
                                   number_of_attack_entry,
                                   timeout_entry]],
     [gather_resource_checkbox, [use_gathering_boosts, hold_one_query_space_checkbox, resource_ratio, resource_no_secondery_commander]],
+    [gather_gem_checkbox, [gather_gem_distance_entry, gather_gem_no_secondary, gather_gem_use_multiple_images, gather_gem_min_images_entry]],
     [use_all_marches_checkbox, [wait_for_marches_checkbox, auto_switch_tasks_checkbox, max_wait_time_entry, march_priority_combobox]],
     [enable_scout_checkbox, [enable_Investigation_checkbox]]
 ]
